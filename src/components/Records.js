@@ -1,50 +1,53 @@
 import styled from "styled-components";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import dayjs from "dayjs";
 import { Link } from "react-router-dom";
 import { IoIosExit } from "react-icons/io";
 import { FiPlusCircle } from "react-icons/fi";
 import { FiMinusCircle } from "react-icons/fi";
+import UserContext from "../context/UserContext";
 
 export default function Records() {
+  const { accountInformation, updateRecords, setUpdateRecords } = useContext(UserContext);
+  const [records, setRecords] = useState(null);
+  const [name, setName] = useState("")
+
+  useEffect(() => {
+    const request = axios.get("http://localhost:4000/records", {
+      headers: { Authorization: `Bearer ${accountInformation}` },
+    });
+    request.then((response) => {
+      setRecords(response.data.records);
+      console.log(response.data)
+      setName(response.data.name);
+      setUpdateRecords(false);
+    });
+    request.catch(() => alert("Houve um erro ao buscar o extrato"));
+  }, [updateRecords]);
+
   let balance = 0;
-  const records = [
-    { id: "1", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "2", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "3", date: "30/11", description: "Almoço mãe", value: "39.90" },
-    { id: "4", date: "30/11", description: "Almoço mãe", value: "0" },
-    { id: "1", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "2", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "3", date: "30/11", description: "Almoço mãe", value: "39.90" },
-    { id: "4", date: "30/11", description: "Almoço mãe", value: "0" },
-    { id: "1", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "2", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "3", date: "30/11", description: "Almoço mãe", value: "39.90" },
-    { id: "4", date: "30/11", description: "Almoço mãe", value: "0" },
-    { id: "1", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "2", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "3", date: "30/11", description: "Almoço mãe", value: "39.90" },
-    { id: "4", date: "30/11", description: "Almoço mãe", value: "0" },
-    { id: "1", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "2", date: "30/11", description: "Almoço mãe", value: "-39.90" },
-    { id: "3", date: "30/11", description: "Almoço mãe", value: "39.90" },
-    { id: "4", date: "30/11", description: "Almoço mãe", value: "0" },
-  ];
+
   return (
     <Container>
       <ContainerNameAndExit>
-        Olá, Fulano
+        Olá, {name}
         <div>
           <IoIosExit color={"white"} size={"30px"} />
         </div>
       </ContainerNameAndExit>
       <ContainerRecords>
-        {records.length ? (
+        {records?.length ? (
           <>
             {records.map((record, index) => {
               balance += Number(record.value);
               return (
                 <Record key={index}>
                   <RecordDescriptionAndDate>
-                    <RecordDate>{record.date}</RecordDate> {record.description}
+                    <RecordDate>
+                      {dayjs(record.date).format("DD/MM")}
+                    </RecordDate>{" "}
+                    {record.description}
                   </RecordDescriptionAndDate>{" "}
                   <RecordValue
                     valuePositive={
@@ -71,7 +74,7 @@ export default function Records() {
                     : "neutral"
                 }
               >
-                {balance}
+                {balance.toFixed(2)}
               </RecordValue>
             </Balance>
           </>

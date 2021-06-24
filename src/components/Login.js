@@ -1,17 +1,22 @@
 import styled from "styled-components";
 import axios from "axios";
 import { Link, useHistory } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Loader from "react-loader-spinner";
+import UserContext from '../context/UserContext'
 
 export default function Login() {
   const [userLogInInformation, setUserLogInInformation] = useState({
     email: "",
     password: "",
   });
-  const [accountInformation, setAccountInformation] = useState(null);
+  const { setAccountInformation } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
+
+  if(localStorage.getItem("user")){
+    history.push("/records")
+  }
 
   function submitLogin(e) {
     setIsLoading(true);
@@ -23,21 +28,21 @@ export default function Login() {
         return;
       }
     }
-    // const request = axios.post(
-    //   "",
-    //   userLogInInformation
-    // );
-    // request.then(submitLoginSucess);
-    // request.catch(submitLoginFail);
+    const request = axios.post(
+      "http://localhost:4000/sign-in",
+      userLogInInformation
+    );
+    request.then(submitLoginSucess);
+    request.catch(submitLoginFail);
 
-    setIsLoading(false);
-    history.push("/records");
   }
 
   function submitLoginSucess(response) {
     setIsLoading(false);
     setUserLogInInformation({ email: "", password: "" });
     setAccountInformation(response.data);
+    const userSerializados = JSON.stringify(response.data);
+    localStorage.setItem("user", userSerializados);
     history.push("/records");
   }
 

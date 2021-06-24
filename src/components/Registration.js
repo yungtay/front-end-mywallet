@@ -38,15 +38,12 @@ export default function Registration() {
         return;
       }
     }
-    // const request = axios.post(
-    //   "",
-    //   userRegisterInformation
-    // );
-    // request.then(submitRegisterSucess);
-    // request.catch(submitRegisterFail);
-
-    setIsLoading(false);
-    history.push("/");
+    const request = axios.post(
+      "http://localhost:4000/sign-up",
+      userRegisterInformation
+    );
+    request.then(submitRegisterSucess);
+    request.catch(submitRegisterFail);
   }
 
   function submitRegisterSucess(response) {

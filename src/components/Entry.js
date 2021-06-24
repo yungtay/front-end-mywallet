@@ -1,18 +1,20 @@
 import styled from "styled-components";
-import { useState } from "react";
+import axios from "axios";
+import { useState, useContext } from "react";
 import { Container } from "./Records";
 import { LoginForm } from "./Login";
 import Loader from "react-loader-spinner";
 import { useHistory } from "react-router";
+import UserContext from "../context/UserContext";
 
 export default function Entry() {
   const [isLoading, setIsLoading] = useState(false);
+  const { accountInformation, setUpdateRecords } = useContext(UserContext);
   const history = useHistory();
   const [userEntryInformation, setUserEntryInformation] = useState({
     value: "",
     description: "",
   });
-  console.log(userEntryInformation)
 
   function submitEntry(e) {
     setIsLoading(true);
@@ -24,19 +26,18 @@ export default function Entry() {
         return;
       }
     }
-    // const request = axios.post(
-    //   "",
-    //   userEntryInformation
-    // );
-    // request.then(submitEntrySucess);
-    // request.catch(submitEntryFail);
-
-    setIsLoading(false);
-    history.push("/records");
+    const request = axios.post(
+      "http://localhost:4000/records",
+      userEntryInformation,
+      { headers: { Authorization: `Bearer ${accountInformation}` } }
+    );
+    request.then(submitEntrySucess);
+    request.catch(submitEntryFail);
   }
 
-  function submitEntrySucess(response) {
+  function submitEntrySucess() {
     setIsLoading(false);
+    setUpdateRecords(true);
     setUserEntryInformation({ value: "", description: "" });
     history.push("/records");
   }
@@ -63,8 +64,8 @@ export default function Entry() {
           onChange={(e) => {
             setUserEntryInformation({
               ...userEntryInformation,
-              value: e.target.value ,
-           })
+              value: e.target.value,
+            });
           }}
         />
         <input
@@ -99,4 +100,4 @@ const TitleEntryAndOutputs = styled.div`
   margin-bottom: 40px;
 `;
 
-export { TitleEntryAndOutputs }
+export { TitleEntryAndOutputs };

@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import axios from "axios";
 import { Container } from "./Records";
 import { LoginForm } from "./Login";
 import Loader from "react-loader-spinner";
 import { useHistory } from "react-router";
 import { TitleEntryAndOutputs } from "./Entry";
+import UserContext from "../context/UserContext";
 
 export default function Outputs() {
   const [isLoading, setIsLoading] = useState(false);
+  const { accountInformation, setUpdateRecords } = useContext(UserContext);
   const history = useHistory();
   const [userOutputInformation, setUserOutputInformation] = useState({
     value: "",
@@ -23,18 +26,20 @@ export default function Outputs() {
         return;
       }
     }
-    // const request = axios.post(
-    //   "",
-    //   userOutputInformation
-    // );
-    // request.then(submitOutputsSucess);
-    // request.catch(submitOutputsFail);
+    const request = axios.post(
+      "http://localhost:4000/records",
+      { ...userOutputInformation, value: userOutputInformation.value * -1 },
+      { headers: { Authorization: `Bearer ${accountInformation}` } }
+    );
+    request.then(submitOutputsSucess);
+    request.catch(submitOutputsFail);
 
     setIsLoading(false);
     history.push("/records");
   }
 
-  function submitOutputsSucess(response) {
+  function submitOutputsSucess() {
+    setUpdateRecords(true);
     setIsLoading(false);
     setUserOutputInformation({ value: "", description: "" });
     history.push("/records");
