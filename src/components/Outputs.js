@@ -6,6 +6,7 @@ import Loader from "react-loader-spinner";
 import { useHistory } from "react-router";
 import { TitleEntryAndOutputs } from "./Entry";
 import UserContext from "../context/UserContext";
+import CurrencyInput from 'react-currency-masked-input'
 
 export default function Outputs() {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,20 +29,17 @@ export default function Outputs() {
     }
     const request = axios.post(
       "http://localhost:4000/records",
-      { ...userOutputInformation, value: userOutputInformation.value * -1 },
+      { ...userOutputInformation, value: userOutputInformation.value * -100 },
       { headers: { Authorization: `Bearer ${accountInformation}` } }
     );
     request.then(submitOutputsSucess);
     request.catch(submitOutputsFail);
-
-    setIsLoading(false);
-    history.push("/records");
   }
 
   function submitOutputsSucess() {
-    setUpdateRecords(true);
     setIsLoading(false);
     setUserOutputInformation({ value: "", description: "" });
+    setUpdateRecords(true);
     history.push("/records");
   }
 
@@ -59,17 +57,18 @@ export default function Outputs() {
         onSubmit={(e) => submitOutputs(e)}
         loading={isLoading ? "carregando" : ""}
       >
-        <input
+        <CurrencyInput
           disabled={isLoading}
+          max="21474836.47"
+          maxLength="10"
           type="number"
-          step="any"
           placeholder="Valor"
           value={userOutputInformation.value}
-          onChange={(e) =>
+          onChange={(e,m) => {
             setUserOutputInformation({
               ...userOutputInformation,
-              value: e.target.value,
-            })
+              value: m,
+          })}
           }
         />
         <input
@@ -88,7 +87,7 @@ export default function Outputs() {
           {isLoading ? (
             <Loader type="ThreeDots" color="white" height={20} />
           ) : (
-            "Entrar"
+            "Salvar saída"
           )}
         </button>
       </LoginForm>

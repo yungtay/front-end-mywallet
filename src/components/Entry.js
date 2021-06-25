@@ -6,6 +6,7 @@ import { LoginForm } from "./Login";
 import Loader from "react-loader-spinner";
 import { useHistory } from "react-router";
 import UserContext from "../context/UserContext";
+import CurrencyInput from 'react-currency-masked-input'
 
 export default function Entry() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,8 @@ export default function Entry() {
     value: "",
     description: "",
   });
+
+  console.log(userEntryInformation)
 
   function submitEntry(e) {
     setIsLoading(true);
@@ -28,7 +31,7 @@ export default function Entry() {
     }
     const request = axios.post(
       "http://localhost:4000/records",
-      userEntryInformation,
+      {...userEntryInformation, value: userEntryInformation.value * 100},
       { headers: { Authorization: `Bearer ${accountInformation}` } }
     );
     request.then(submitEntrySucess);
@@ -56,15 +59,16 @@ export default function Entry() {
         onSubmit={(e) => submitEntry(e)}
         loading={isLoading ? "carregando" : ""}
       >
-        <input
+        <CurrencyInput
           disabled={isLoading}
+          max="21474836.47"
           type="number"
           placeholder="Valor"
           value={userEntryInformation.value}
-          onChange={(e) => {
+          onChange={(e,m) => {
             setUserEntryInformation({
               ...userEntryInformation,
-              value: e.target.value,
+              value: m,
             });
           }}
         />
@@ -84,7 +88,7 @@ export default function Entry() {
           {isLoading ? (
             <Loader type="ThreeDots" color="white" height={20} />
           ) : (
-            "Entrar"
+            "Salvar entrada"
           )}
         </button>
       </LoginForm>

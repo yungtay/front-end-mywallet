@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import axios from "axios";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
@@ -11,15 +12,17 @@ import UserContext from "../context/UserContext";
 export default function Records() {
   const { accountInformation, updateRecords, setUpdateRecords } = useContext(UserContext);
   const [records, setRecords] = useState(null);
-  const [name, setName] = useState("")
+  const [name, setName] = useState("");
+  const history = useHistory();
+
+  const autho = {
+    headers: { Authorization: `Bearer ${accountInformation}` },
+  };
 
   useEffect(() => {
-    const request = axios.get("http://localhost:4000/records", {
-      headers: { Authorization: `Bearer ${accountInformation}` },
-    });
+    const request = axios.get("http://localhost:4000/records", autho);
     request.then((response) => {
       setRecords(response.data.records);
-      console.log(response.data)
       setName(response.data.name);
       setUpdateRecords(false);
     });
@@ -28,12 +31,22 @@ export default function Records() {
 
   let balance = 0;
 
+  function logout() {
+    const request = axios.post("http://localhost:4000/logout", {}, autho);
+    request.then(() => {
+      localStorage.removeItem("user");
+      history.push("/");
+
+    });
+    request.catch(() => alert("Erro ao fazer logout"));
+  }
+
   return (
     <Container>
       <ContainerNameAndExit>
         Olá, {name}
         <div>
-          <IoIosExit color={"white"} size={"30px"} />
+          <IoIosExit onClick={() => logout()} color={"white"} size={"30px"} />
         </div>
       </ContainerNameAndExit>
       <ContainerRecords>
@@ -47,7 +60,7 @@ export default function Records() {
                     <RecordDate>
                       {dayjs(record.date).format("DD/MM")}
                     </RecordDate>{" "}
-                    {record.description}
+                    <Description>{record.description}</Description>
                   </RecordDescriptionAndDate>{" "}
                   <RecordValue
                     valuePositive={
@@ -58,7 +71,7 @@ export default function Records() {
                         : "neutral"
                     }
                   >
-                    {Math.abs(record.value).toFixed(2)}
+                    {Math.abs(record.value/100).toFixed(2)}
                   </RecordValue>
                 </Record>
               );
@@ -74,7 +87,7 @@ export default function Records() {
                     : "neutral"
                 }
               >
-                {balance.toFixed(2)}
+                {(balance/100).toFixed(2)}
               </RecordValue>
             </Balance>
           </>
@@ -180,7 +193,17 @@ const RecordDescriptionAndDate = styled.div`
   width: 100%;
   font-size: 16px;
   display: flex;
+
 `;
+
+const Description = styled.div`
+width: 50%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  word-break: break-all;
+`
 
 const Record = styled.div`
   width: 100%;
