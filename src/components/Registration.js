@@ -32,15 +32,16 @@ export default function Registration() {
         setUserRegisterInformation({
           name: userRegisterInformation.name,
           email: userRegisterInformation.email,
-          password: userRegisterInformation.password,
+          password: "",
           confirmPassword: "",
         });
         return;
       }
     }
+    const { confirmPassword, ...userInformation} = userRegisterInformation
     const request = axios.post(
       "http://localhost:4000/sign-up",
-      userRegisterInformation
+      userInformation
     );
     request.then(submitRegisterSucess);
     request.catch(submitRegisterFail);
@@ -59,6 +60,12 @@ export default function Registration() {
 
   function submitRegisterFail(error) {
     setIsLoading(false);
+    setUserRegisterInformation({
+      name: userRegisterInformation.name,
+      email: userRegisterInformation.email,
+      password: "",
+      confirmPassword: "",
+    });
     if (error.response.status === 403) {
       alert("O e-mail inserido já está em uso");
     } else {

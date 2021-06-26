@@ -16,9 +16,7 @@ export default function Entry() {
     value: "",
     description: "",
   });
-
-  console.log(userEntryInformation)
-
+  
   function submitEntry(e) {
     setIsLoading(true);
     e.preventDefault();

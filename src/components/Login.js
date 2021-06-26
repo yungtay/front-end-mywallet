@@ -48,6 +48,7 @@ export default function Login() {
 
   function submitLoginFail(error) {
     setIsLoading(false);
+    setUserLogInInformation({ email: userLogInInformation.email, password: "" });
     if (error.response.status === 403) {
       alert("E-mail ou senha incorretos");
     } else {
